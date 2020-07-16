@@ -65,8 +65,8 @@ def face_rec(known_names, known_encodings):
                 print("不认识这个人")
 
         for name in face_names:
-            print(f"你是:{name}")
-            playsound(os.path.join("audios",f'{name}.mp3'))
+            print("你是:",name)
+            playsound(os.path.join("audios","{}.mp3".format(name)))
 
         time.sleep(5)
 
