@@ -1,6 +1,6 @@
 from aip import AipSpeech
 import face_recognition
-import cv2
+import cv2,random
 import os,time
 from playsound import playsound
 
@@ -12,18 +12,30 @@ client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
 
 
 # https://ai.baidu.com/ai-doc/SPEECH/Gk4nlz8tc
-def say_papa():
-    result  = client.synthesis('奶奶，奶奶，您来啦！', 'zh', 1, {
+def say_hello(name):
+    sentence=[
+        "{},{},您来了".format(name,name),
+        "{}，欢迎您".format(name),
+        "{}，你好可爱吆~".format(name),
+        "{}，你也太帅了吧".format(name),
+        "{},{},{},{},{}".format(name,name,name,name,name)
+    ]
+    readers=[0,1,3,4]
+
+    words = random.choice(sentence)
+    reader = random.choice(readers)
+
+    result  = client.synthesis(words, 'zh', 1, {
         'vol': 10,
-        'per': 1
+        'per': reader
     })
     print("调用百度合成完毕，长度：",len(result))
 
     # 识别正确返回语音二进制 错误则返回dict 参照下面错误码
     if not isinstance(result, dict):
-        with open('audios/nai.mp3', 'wb') as f:
+        with open('audios/output.mp3', 'wb') as f:
             f.write(result)
-        playsound('audios/nai.mp3')
+        playsound('audios/output.mp3')
 
 
 def facedb_load(facedb_path):
@@ -54,7 +66,7 @@ def face_rec(known_names, known_encodings):
         face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)  # 获得人脸特征值
         face_names = []  # 存储出现在画面中人脸的名字
         for face_encoding in face_encodings:
-            matches = face_recognition.compare_faces(known_encodings, face_encoding, tolerance=0.3)
+            matches = face_recognition.compare_faces(known_encodings, face_encoding, tolerance=0.4)
             print("识别完毕")
             if True in matches:
                 first_match_index = matches.index(True)
@@ -66,7 +78,8 @@ def face_rec(known_names, known_encodings):
 
         for name in face_names:
             print("你是:",name)
-            playsound(os.path.join("audios","{}.mp3".format(name)))
+            say_hello(name)
+            #playsound(os.path.join("audios","{}.mp3".format(name)))
 
         time.sleep(5)
 
@@ -77,4 +90,4 @@ def face_rec(known_names, known_encodings):
 if __name__=="__main__":
     known_names, known_encodings = facedb_load("./facedb")
     face_rec(known_names, known_encodings)
-    # say_papa()
+    # say_hello()
